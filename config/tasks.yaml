@@ -1,0 +1,20 @@
+tasks:
+  history_extraction:
+    description: "Extract and format {history} into a context string and provide some extra info based on that history."
+    expected_output: "A formatted conversation string with user_query from inputs"
+    agent: historian
+
+#  prompt_building:
+#    description: "Build the LLM messages using {history} string, user query, and prompt_conf."
+#    expected_output: "A list of system/assistant/user messages ready for LLM input."
+#    agent: engineer
+
+  llm_call:
+    description: "Send messages to the LLM and get standalone question output and by using history provided by history_extraction agent and {user_query} from inputs ."
+    expected_output: "Standalone question."
+    agent: orchestrator
+
+#  finalize_output:
+#    description: "Process LLM results, track token usage, and handle errors."
+#    expected_output: "Final packaged result including output, error info, and token usage."
+#    agent: tracker
