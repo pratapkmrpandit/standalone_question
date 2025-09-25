@@ -31,7 +31,6 @@ def standalone_question_view(request):
 
             return JsonResponse(result_dict, safe=False)
 
-
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
