@@ -1,0 +1,104 @@
+{
+  "embed_model": "text-embedding-3-small",
+  "llm_model_qtx": "gpt-4o",
+  "llm_provider": "azure/",
+  "llm_model": "gpt-4.1-mini_ramcoerp",
+  "ENCRYPTION_KEY": "JFGOtI74eZiP4VEVZ9RqTpl-bTJ8GLFA8SvpjbD6528=",
+  "embedding_function": "openai_ef",
+  "embedding_model":"text-embedding-3-small",
+  "reranker_model": "ms-marco-MiniLM-L-12-v2",
+  "reranker_model_cache_path": "Reranker",
+  "vector_index_score_thres": 0.6,
+  "module_clf_fuzz_th1": 90,
+  "module_clf_fuzz_th2": 70,
+  "few_shot_th": 95,
+  "few_shot_th_2": 70,
+  "output_records_len": 10,
+  "chat_history_records_len": 5,
+  "SQL_RETRY_ATTEMPTS":2,
+  "ENABLED_AGENTS": { 
+        "data_query_agent":"True",
+        "process_flow_explainer":"True",
+        "graph_visualization":"True"
+                  },
+  "security_feature":"True",
+  "emod_user_role_ou_table_dtl":"emod_user_role_ou_table_dtl",
+  "emod_comp_table_map":"emod_comp_table_map",
+  "description_mandatory_emphasis" :  "** STRICT RULE FOR CODE-TO-DESCRIPTION MAPPING **\\n\\nWhenever any column like `status`, `code`, `type`, `method`, `flag`, `uom`, or `uom code` appears (regardless of WHERE clause), you MUST STRICTLY generate a full CASE mapping in the SELECT clause that includes all known possible values.\\n\\n**HOWEVER**, YOU MUST **NOT** ASSUME column names.\\n\\n STRICTLY ONLY use column names that exist in the `Relevant Table Descriptions` or `DDLs` provided.\\n DO NOT guess or fabricate column names like `status_code`, `flag_cd`, `type_cd`, etc.\\n\\nIf no column from that list appears in the fetched schema, DO NOT include any CASE mapping.\\n\\n### Example CASE Mapping (only if valid column like `sohdr_order_status` exists):\\n```sql\\nCASE\\n  WHEN sohdr_order_status = 'AC' THEN 'ACTIVE'\\n  WHEN sohdr_order_status = 'ALL' THEN 'ALL'\\n  WHEN sohdr_order_status = 'AU' THEN 'AUTHORIZED'\\n  WHEN sohdr_order_status = 'CL' THEN 'CLOSED'\\n  WHEN sohdr_order_status = 'DL' THEN 'DELETED'\\n  WHEN sohdr_order_status = 'REJ' THEN 'REJECTED'\\n  WHEN sohdr_order_status = 'SC' THEN 'SHORT CLOSED'\\n  WHEN sohdr_order_status = 'DR' THEN 'DRAFT'\\n  ELSE ''\\nEND AS StatusDescription\\n```\\n\\n ONLY apply this rule if one of the known column names appears in the fetched schema (table DDLs or introspection).\\n DO NOT apply this rule if those columns are missing — never hallucinate column names.\\n\\n***THIS RULE IS CONDITIONAL ON COLUMNS EXISTING IN THE FETCHED DDL. STRICTLY DO NOT ASSUME.EVEN IF the few-shot SQL examples retrieved do NOT contain such CASE statements, your generated query **MUST** **STRICTLY** include them if such columns appear***",
+  "sql_generation_failed_message": "The information provided by you is not sufficient. Please provide more details or clarify your question so I can assist you better.",
+  "relevant_tables_not_identified_message": "Not able to find any relevant tables for the question asked.",
+  "format_sql": "select ReferenceFormatType,ReferenceFormat from QIPP_Fw_Admin_User_Pref_default_VW qiv where Langid = 1",
+  "remove_cols":{},
+  "code_vs_desc_handling": {
+      "code_keywords": [
+        "status",
+        "code",
+        "type",
+        "method",
+        "flag",
+        "uom code"
+      ],
+      "code_patterns": [
+        "\\b\\w*_status\\b",
+        "\\b\\w*_code\\b",
+        "\\b\\w*_type\\b",
+        "\\b\\w*_method\\b",
+        "\\b\\w*_flag\\b",
+        "\\buom\\s*code\\b",
+        "\\bstatus\\b",
+        "\\bcode\\b",
+        "\\btype\\b"
+      ],
+      "mapping_phrases": [
+        "case when",
+        "description",
+        "mapping",
+        "values:",
+        "codes:",
+        "status:",
+        "au=authorized",
+        "ac=active",
+        "cl=closed",
+        "dl=deleted"
+      ]
+    },
+
+  "emod_tran_type_query": "SELECT\n  (SELECT STRING_AGG(CAST(CONCAT(tran_type, '-', tran_desc) AS NVARCHAR(MAX)), '\\n ')\n   FROM emod_trantype_vw\n   WHERE language_id = 1) AS full_desc_list,\n\n  (SELECT STRING_AGG(CAST(tran_type AS NVARCHAR(MAX)), ',')\n   FROM emod_trantype_vw\n   WHERE language_id = 1) AS tran_type_list;",
+    "emod_tran_type_mapping_tables":["fbp_posted_trn_dtl","dim_postings_dtl","dim_tran_post_dtl"],
+
+  "stock_bal_cols": {
+    "stock_bal_lot": ["sbl_quantity"],
+    "stock_bal_nonctrl": ["sbn_quantity"],
+    "stock_bal_serial": ["sbs_quantity"]
+  },
+  "keyword_table_map": {
+    "supp_spmn_suplmain": ["supp"],
+    "pt_payterm_master": ["payterm", "payment term", "pay term"],
+    "itm_lov_varianthdr": ["lov_stockuom"],
+    "item_var_bu_vw": ["length", "thickness/height", "breadth/width"],
+    "emod_finbook_vw": ["finbook", "finance book", "finbook description"],
+    "uom_mas_uommaster": ["uomcode", "uom"],
+    "itm_loi_itemhdr":["itemcode","item code", "item number", "_item_no", "item_no"],
+    "cust_lo_info": ["cust_code", "customer code"],
+    "sa_wm_warehouse_master": ["warehouse code", "wh_code"],
+    "si_acct_info_dtl": ["si_doc_balance"],
+    "ci_acct_info_dtl": ["ci_doc_balance"]
+  },
+
+    "warehouse_description_mapping": {
+          "master_table": "sa_wm_warehouse_master",
+          "code_fields": ["wh_code", "warehouse_code", "whcode"]
+        },
+    "AMENDMENT_TABLES" :  [
+            "po_pomas_pur_order_ hdr", "gr_hdr_grmain",
+            "bpo_bodit_docitemtcd", "bpo_bpod_itemdetail_dtl", "bpo_bodt_tcddetails",
+            "po_potcd_doclevel_detail", "po_paytm_linelevel_detail", "po_paytm_doclevel_detail",
+            "po_potcd_itemtcd_dtl", "po_poitm_item_detail", "gr_lin_details",
+            "gr_val_valuedetails", "grn_lin_details", "so_order_hdr"],
+    "AMENDMENT_KEYWORDS" : [
+            "po", "purchase order", "blanket po", "gr", "amendment", "amendment number",
+            "amendment no", "pomas_poamendmentno", "gr_hdr_orderamendno",
+            "boitc_amendno", "bodit_amendno", "bpod_amendno","sohdr_amend_no"
+        ]
+
+}

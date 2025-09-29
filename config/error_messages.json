@@ -1,0 +1,18 @@
+{
+    "ChatAPI": {
+        "sql_generation_failed_message":"The information provided by you is not sufficient. Please provide more details or clarify your question so I can assist you better.",
+        "no_records_found": "Unfortunately, no records were found in the database for the requested information.",
+        "db_connection_error":"We're unable to proceed with your request due to a database connection issue. Please try again after sometime.",
+        "500": "Something went wrong on our end. We're working on it and will have things back to normal shortly.",
+        "400": "It looks like there’s an issue with the information you provided. Please check and try again."
+        },
+    "OpenAI": {
+      "429_rate_limit": "We're currently receiving a high number of requests. Please wait a moment and try again.",
+      "503": "The system is experiencing high demand at the moment. Kindly retry in a few minutes.",
+      "500": "We’re facing some temporary technical issues. Rest assured, we're working to fix it as soon as possible.",
+      "429_quota": "I am currently in maintenance mode. Kindly reach out in a short while.",
+      "408": "The request took longer than expected. Please try again in a moment.",
+      "400":"We're unable to proceed with your request as it doesn't align with our content guidelines. Please reframe your question, and I'll be happy to assist."
+    }
+  }
+  

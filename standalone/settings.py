@@ -11,9 +11,18 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import json
+import logging
+from utils.decrypt import Encryption_Decryption
+from dotenv import load_dotenv,dotenv_values
 
+logger = logging.getLogger(__name__)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -67,6 +76,75 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'standalone.wsgi.application'
+
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+env_values = dotenv_values(".env")
+
+
+client_name = None
+if client_name is None:
+    client_name = 'COE'
+
+logger.info(f"Identified Client Is :: {client_name}")
+with open(os.path.join(BASE_DIR, "config",client_name, "config.json")) as config_file:
+    config = json.load(config_file)
+
+ENCRYPTION_KEY = config.get("ENCRYPTION_KEY")
+enc_dec = Encryption_Decryption(ENCRYPTION_KEY)
+
+DECRYPTED_ENV = {}
+for key, value in env_values.items():
+    try:
+        # Only decrypt if the value starts with "ENC::"
+        if ("password" in key.lower() or "key" in key.lower()) and value.startswith("ENC::"):
+            decrypted_value = enc_dec.decrypt_value(value[6:])  # Remove "ENC::" prefix
+            DECRYPTED_ENV[key] = decrypted_value
+        else:
+            DECRYPTED_ENV[key] = value
+    except Exception as e:
+        logger.error(f"Failed to decrypt key '{key}': {e}")
+        raise ValueError(f"Error decrypting key '{key}': {e}")
+
+# Set environment variables in Django settings
+print("this is decryption key")
+print(DECRYPTED_ENV)
+os.environ.update(DECRYPTED_ENV)
+
+EMBEDDING_MODEL = config.get("embed_model")
+LLM_MODEL = config.get("llm_model")
+COLLECTION_NAME = os.getenv("AZURE_AI_SEARCH_COLLECTION_NAME")
+COMPONENT_INDEX = os.getenv("AZURE_AI_SEARCH_COMPONENT_INDEX", "")
+DISTANCE_METHOD = config.get("distance_method")
+EMBEDDING_FUNCTION = config.get("embedding_function")
+ERROR_MESSAGE_500 = config.get("500")
+ERROR_MESSAGE_400 = config.get("400")
+
+
+with open(os.path.join(BASE_DIR, "config",client_name, "prompt_config.json")) as config_file:
+    prompt_conf = json.load(config_file)
+
+
+with open(os.path.join(BASE_DIR, "config", "error_messages.json")) as config_file:
+    error_conf = json.load(config_file)
+
+
+
+llm_conf = {
+    "llm_model": "openai",
+    "api_key": os.getenv("AZURE_OPENAI_API_KEY"),
+    "model": LLM_MODEL,
+}
+
+
+vdb_conf = {
+    "vec_db": "chroma",
+    "collection_name": COLLECTION_NAME,
+    "component_index": COMPONENT_INDEX,
+    "db_path": os.path.join(BASE_DIR),
+    "embedding_function": EMBEDDING_FUNCTION,
+    "embed_model": EMBEDDING_MODEL,
+}
+
 
 
 # Database
